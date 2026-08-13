@@ -1,0 +1,49 @@
+Folder PATH listing for volume Windows
+Volume serial number is 000001A7 34BC:4201
+C:\USERS\ABHISHEK\DESKTOP\CYBERSAVE\CYBERSAVEAPP\SRC
++---components
++---constants
++---navigation
+|       AppNavigator.jsx
+|       AuthNavigator.jsx
+|       MainNavigator.jsx
+|       OnboardingNavigator.jsx
+|       
++---screens
+|   +---auth
+|   |       OtpScreen.jsx
+|   |       RegisterScreen.jsx
+|   |       WelcomeBackScreen.jsx
+|   |       
+|   +---language
+|   |       LanguageScreen.jsx
+|   |       
+|   +---main
+|   |       HomeScreen.jsx
+|   |       
+|   +---onboarding
+|   |       OnboardingOneScreen.jsx
+|   |       OnboardingPagination.jsx
+|   |       OnboardingScreen.jsx
+|   |       OnboardingThreeScreen.jsx
+|   |       OnboardingTwoScreen.jsx
+|   |       
+|   \---splash
+|           SplashScreen.jsx
+|           
++---services
+|   |   auth.service.js
+|   |   
+|   \---api
+|           client.js
+|           
++---store
+|   |   store.js
+|   |   
+|   \---slices
+|       |   languageSlice.js
+|       |   
+|       \---auth
+|               authSlice.js
+|               
+\---utils
