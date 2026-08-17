@@ -47,3 +47,8 @@ C:\USERS\ABHISHEK\DESKTOP\CYBERSAVE\CYBERSAVEAPP\SRC
 |               authSlice.js
 |               
 \---utils
+
+
+npx expo start --dev-client
+
+npx expo run:android
