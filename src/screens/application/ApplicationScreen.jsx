@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,92 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  RefreshControl,
+  StatusBar,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const APPLICATIONS = [
-  {
-    id: "BC-20260816",
-    service: "Birth Certificate",
-    category: "Certificates",
-    status: "Under Review",
-    date: "16 Aug 2026",
-    amount: "₹55",
-  },
-  {
-    id: "PAN-20260812",
-    service: "PAN Card",
-    category: "PAN Card",
-    status: "Completed",
-    date: "12 Aug 2026",
-    amount: "₹110",
-  },
-  {
-    id: "AAD-20260810",
-    service: "Aadhaar Update",
-    category: "Aadhaar Card",
-    status: "Pending",
-    date: "10 Aug 2026",
-    amount: "₹50",
-  },
-  {
-    id: "INC-20260808",
-    service: "Income Certificate",
-    category: "Certificates",
-    status: "Processing",
-    date: "08 Aug 2026",
-    amount: "₹60",
-  },
-  {
-    id: "DOM-20260805",
-    service: "Domicile Certificate",
-    category: "Certificates",
-    status: "Approved",
-    date: "05 Aug 2026",
-    amount: "₹75",
-  },
-  {
-    id: "DL-20260803",
-    service: "Driving Licence",
-    category: "Transport",
-    status: "Processing",
-    date: "03 Aug 2026",
-    amount: "₹350",
-  },
-  {
-    id: "MAR-20260730",
-    service: "Marriage Certificate",
-    category: "Certificates",
-    status: "Rejected",
-    date: "30 Jul 2026",
-    amount: "₹100",
-  },
-  {
-    id: "PAN-20260728",
-    service: "PAN Correction",
-    category: "PAN Card",
-    status: "Completed",
-    date: "28 Jul 2026",
-    amount: "₹110",
-  },
-  {
-    id: "AAD-20260725",
-    service: "Aadhaar Mobile Update",
-    category: "Aadhaar Card",
-    status: "Pending",
-    date: "25 Jul 2026",
-    amount: "₹50",
-  },
-  {
-    id: "INC-20260722",
-    service: "Income Certificate",
-    category: "Certificates",
-    status: "Approved",
-    date: "22 Jul 2026",
-    amount: "₹60",
-  },
-];
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchApplications } from "../../store/slices/services/serviceSlice";
 
 const FILTERS = [
   "All",
@@ -103,140 +24,162 @@ const FILTERS = [
 ];
 
 const ApplicationScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { applications, applicationSummary, loading } = useSelector(
+    (state) => state.services
+  );
+
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchApplications());
+  }, [dispatch]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await dispatch(fetchApplications());
+    setRefreshing(false);
+  };
 
   const filteredApplications = useMemo(() => {
-    return APPLICATIONS.filter((application) => {
+    const list = applications || [];
+    return list.filter((application) => {
+      const status = application.status || "Pending";
       const matchesFilter =
         selectedFilter === "All" ||
-        application.status === selectedFilter ||
-        (selectedFilter === "Pending" &&
-          application.status === "Under Review");
+        status === selectedFilter ||
+        (selectedFilter === "Pending" && status === "Under Review");
 
       const searchText = search.trim().toLowerCase();
+      const serviceTitle = (
+        application.service ||
+        application.serviceName ||
+        ""
+      ).toLowerCase();
+      const id = (
+        application.id ||
+        application.applicationId ||
+        ""
+      ).toLowerCase();
 
       const matchesSearch =
         !searchText ||
-        application.service.toLowerCase().includes(searchText) ||
-        application.id.toLowerCase().includes(searchText);
+        serviceTitle.includes(searchText) ||
+        id.includes(searchText);
 
       return matchesFilter && matchesSearch;
     });
-  }, [selectedFilter, search]);
+  }, [applications, selectedFilter, search]);
 
-  const totalCount = APPLICATIONS.length;
-
-  const pendingCount = APPLICATIONS.filter(
-    (item) =>
-      item.status === "Pending" ||
-      item.status === "Under Review"
-  ).length;
-
-  const completedCount = APPLICATIONS.filter(
-    (item) =>
-      item.status === "Completed" ||
-      item.status === "Approved"
-  ).length;
+  const totalCount =
+    applicationSummary?.total ?? (applications ? applications.length : 0);
+  const pendingCount =
+    applicationSummary?.pending ??
+    (applications
+      ? applications.filter(
+          (item) =>
+            item.status === "Pending" ||
+            item.status === "Under Review" ||
+            item.status === "Processing"
+        ).length
+      : 0);
+  const completedCount =
+    applicationSummary?.completed ??
+    (applications
+      ? applications.filter(
+          (item) => item.status === "Completed" || item.status === "Approved"
+        ).length
+      : 0);
 
   const handleApplicationPress = (application) => {
     navigation.navigate("ApplicationDetails", {
-      applicationId: application.id,
-      application: application,
+      applicationId: application.applicationId || application.id,
+      application,
     });
   };
 
   const getStatusStyle = (status) => {
     switch (status) {
       case "Completed":
-        return styles.completed;
-
       case "Approved":
-        return styles.approved;
-
+        return styles.completedBadge;
       case "Pending":
-        return styles.pending;
-
-      case "Processing":
-        return styles.processing;
-
-      case "Rejected":
-        return styles.rejected;
-
       case "Under Review":
-        return styles.review;
-
+        return styles.pendingBadge;
+      case "Processing":
+        return styles.processingBadge;
+      case "Rejected":
+        return styles.rejectedBadge;
       default:
-        return styles.review;
+        return styles.pendingBadge;
     }
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Applications</Text>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <StatusBar barStyle="light-content" backgroundColor="#1D4ED8" />
 
-        <Text style={styles.headerSubtitle}>
-          Track all your government service applications
+      {/* Top Blue Hero Section */}
+      <View style={styles.heroContainer}>
+        <Text style={styles.heroTitle}>My Applications</Text>
+        <Text style={styles.heroSubtitle}>
+          Track official application lifecycle & verification in real-time
         </Text>
+
+        {/* Search */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={18} color="#94A3B8" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by application ID or service..."
+            placeholderTextColor="#94A3B8"
+            value={search}
+            onChangeText={setSearch}
+          />
+          {search ? (
+            <TouchableOpacity onPress={() => setSearch("")}>
+              <Ionicons name="close-circle" size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        {/* Summary */}
+        {/* Summary Counter Card */}
         <View style={styles.summaryCard}>
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryNumber}>
-              {totalCount}
-            </Text>
-
-            <Text style={styles.summaryLabel}>
-              Total
-            </Text>
+            <Text style={styles.summaryNumber}>{totalCount}</Text>
+            <Text style={styles.summaryLabel}>Total Applied</Text>
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryNumber}>
+            <Text style={[styles.summaryNumber, { color: "#D97706" }]}>
               {pendingCount}
             </Text>
-
-            <Text style={styles.summaryLabel}>
-              Pending
-            </Text>
+            <Text style={styles.summaryLabel}>Pending / Review</Text>
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryNumber}>
+            <Text style={[styles.summaryNumber, { color: "#16A34A" }]}>
               {completedCount}
             </Text>
-
-            <Text style={styles.summaryLabel}>
-              Completed
-            </Text>
+            <Text style={styles.summaryLabel}>Approved</Text>
           </View>
         </View>
 
-        {/* Search */}
-        <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>⌕</Text>
-
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search application or ID"
-            placeholderTextColor="#9CA3AF"
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
-
-        {/* Filters */}
+        {/* Filter Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -248,16 +191,14 @@ const ApplicationScreen = ({ navigation }) => {
               activeOpacity={0.8}
               style={[
                 styles.filterButton,
-                selectedFilter === filter &&
-                  styles.filterButtonActive,
+                selectedFilter === filter && styles.filterButtonActive,
               ]}
               onPress={() => setSelectedFilter(filter)}
             >
               <Text
                 style={[
                   styles.filterText,
-                  selectedFilter === filter &&
-                    styles.filterTextActive,
+                  selectedFilter === filter && styles.filterTextActive,
                 ]}
               >
                 {filter}
@@ -273,419 +214,328 @@ const ApplicationScreen = ({ navigation }) => {
               ? "All Applications"
               : `${selectedFilter} Applications`}
           </Text>
-
           <Text style={styles.resultCount}>
             {filteredApplications.length} found
           </Text>
         </View>
 
-        {/* Applications */}
+        {/* Applications List */}
         {filteredApplications.length > 0 ? (
-          filteredApplications.map((application) => (
-            <TouchableOpacity
-              key={application.id}
-              style={styles.applicationCard}
-              activeOpacity={0.85}
-              onPress={() =>
-                handleApplicationPress(application)
-              }
-            >
-              {/* Top */}
-              <View style={styles.cardTop}>
-                <View style={styles.serviceIcon}>
-                  <Text style={styles.iconText}>
-                    📄
-                  </Text>
+          filteredApplications.map((application) => {
+            const appId = application.applicationId || application.id;
+            const title =
+              application.service || application.serviceName || "Service";
+            const date = application.date || "Today";
+            const amount =
+              application.amount ||
+              application.formattedAmount ||
+              "₹55";
+            const status = application.status || "Pending";
+
+            return (
+              <TouchableOpacity
+                key={appId}
+                style={styles.applicationCard}
+                activeOpacity={0.85}
+                onPress={() => handleApplicationPress(application)}
+              >
+                {/* Top Row */}
+                <View style={styles.cardTop}>
+                  <View style={styles.serviceIcon}>
+                    <Ionicons
+                      name="document-text"
+                      size={22}
+                      color="#2563EB"
+                    />
+                  </View>
+
+                  <View style={styles.serviceInfo}>
+                    <Text style={styles.serviceName}>{title}</Text>
+                    <Text style={styles.applicationId}>{appId}</Text>
+                  </View>
+
+                  <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
                 </View>
 
-                <View style={styles.serviceInfo}>
-                  <Text style={styles.serviceName}>
-                    {application.service}
-                  </Text>
-
-                  <Text style={styles.applicationId}>
-                    {application.id}
-                  </Text>
+                {/* Category and Date */}
+                <View style={styles.categoryRow}>
+                  <View style={styles.catBadge}>
+                    <Text style={styles.catBadgeText}>
+                      {application.category || "Certificates"}
+                    </Text>
+                  </View>
+                  <Text style={styles.dateText}>{date}</Text>
                 </View>
 
-                <Text style={styles.arrow}>›</Text>
-              </View>
+                {/* Bottom Row: Amount & Status Badge */}
+                <View style={styles.cardBottom}>
+                  <View>
+                    <Text style={styles.amountLabel}>Govt Fee Paid</Text>
+                    <Text style={styles.amount}>{amount}</Text>
+                  </View>
 
-              {/* Middle */}
-              <View style={styles.categoryRow}>
-                <Text style={styles.categoryText}>
-                  {application.category}
-                </Text>
-
-                <Text style={styles.dateText}>
-                  {application.date}
-                </Text>
-              </View>
-
-              {/* Bottom */}
-              <View style={styles.cardBottom}>
-                <View>
-                  <Text style={styles.amountLabel}>
-                    Amount Paid
-                  </Text>
-
-                  <Text style={styles.amount}>
-                    {application.amount}
-                  </Text>
+                  <View style={[styles.statusPill, getStatusStyle(status)]}>
+                    <Text style={styles.statusText}>{status}</Text>
+                  </View>
                 </View>
-
-                <View style={styles.statusContainer}>
-                  <Text
-                    style={[
-                      styles.status,
-                      getStatusStyle(
-                        application.status
-                      ),
-                    ]}
-                  >
-                    {application.status}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
+              </TouchableOpacity>
+            );
+          })
         ) : (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyIcon}>
-              📂
-            </Text>
-
-            <Text style={styles.emptyTitle}>
-              No applications found
-            </Text>
-
+            <Ionicons name="file-tray-outline" size={40} color="#94A3B8" />
+            <Text style={styles.emptyTitle}>No applications found</Text>
             <Text style={styles.emptyText}>
-              Try changing the filter or search
-              for another application.
+              Apply for government certificates or identity cards from the
+              Services Hub.
             </Text>
           </View>
         )}
-
-        {/* Bottom Info */}
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>
-            Need help with an application?
-          </Text>
-
-          <Text style={styles.infoText}>
-            Open any application to view its status,
-            timeline, documents, payment details and
-            other information.
-          </Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#F7F9FC",
+    backgroundColor: "#1D4ED8",
   },
-
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 18,
+  heroContainer: {
+    backgroundColor: "#1D4ED8",
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  heroTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#FFFFFF",
+  },
+  heroSubtitle: {
+    fontSize: 12,
+    color: "#DBEAFE",
+    marginTop: 4,
+    marginBottom: 14,
+  },
+  searchContainer: {
+    height: 46,
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    gap: 8,
   },
-
-  headerTitle: {
-    fontSize: 25,
-    fontWeight: "700",
-    color: "#111827",
-  },
-
-  headerSubtitle: {
-    marginTop: 5,
+  searchInput: {
+    flex: 1,
     fontSize: 13,
-    color: "#6B7280",
+    color: "#1E293B",
   },
-
   content: {
-    padding: 16,
-    paddingBottom: 35,
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 90,
   },
-
   summaryCard: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
-    paddingVertical: 18,
+    paddingVertical: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
-
   summaryItem: {
     flex: 1,
     alignItems: "center",
   },
-
   summaryNumber: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#1E293B",
   },
-
   summaryLabel: {
     marginTop: 4,
-    fontSize: 12,
-    color: "#6B7280",
+    fontSize: 11,
+    color: "#64748B",
+    fontWeight: "600",
   },
-
   divider: {
     width: 1,
-    height: 35,
-    backgroundColor: "#E5E7EB",
+    height: 32,
+    backgroundColor: "#E2E8F0",
   },
-
-  searchContainer: {
-    height: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    marginBottom: 14,
-  },
-
-  searchIcon: {
-    fontSize: 25,
-    color: "#6B7280",
-  },
-
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#111827",
-  },
-
   filterContainer: {
-    paddingBottom: 18,
+    paddingBottom: 14,
+    gap: 8,
   },
-
   filterButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 9,
-    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 18,
     backgroundColor: "#FFFFFF",
-    marginRight: 8,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: "#E2E8F0",
   },
-
   filterButtonActive: {
     backgroundColor: "#2563EB",
     borderColor: "#2563EB",
   },
-
   filterText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
-    color: "#6B7280",
+    color: "#475569",
   },
-
   filterTextActive: {
     color: "#FFFFFF",
   },
-
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
   },
-
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
+    color: "#1E293B",
   },
-
   resultCount: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: "#94A3B8",
   },
-
   applicationCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
-
   cardTop: {
     flexDirection: "row",
     alignItems: "center",
   },
-
   serviceIcon: {
-    width: 46,
-    height: 46,
+    width: 44,
+    height: 44,
     borderRadius: 12,
     backgroundColor: "#EFF6FF",
     justifyContent: "center",
     alignItems: "center",
   },
-
-  iconText: {
-    fontSize: 20,
-  },
-
   serviceInfo: {
     flex: 1,
     marginLeft: 12,
   },
-
   serviceName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
+    color: "#1E293B",
   },
-
   applicationId: {
-    marginTop: 4,
+    marginTop: 2,
     fontSize: 12,
-    color: "#6B7280",
+    color: "#2563EB",
+    fontWeight: "600",
   },
-
-  arrow: {
-    fontSize: 28,
-    color: "#9CA3AF",
-  },
-
   categoryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 14,
+    alignItems: "center",
+    marginTop: 12,
   },
-
-  categoryText: {
-    fontSize: 12,
-    color: "#6B7280",
+  catBadge: {
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-
+  catBadgeText: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#475569",
+  },
   dateText: {
-    fontSize: 12,
-    color: "#6B7280",
+    fontSize: 11,
+    color: "#64748B",
   },
-
   cardBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
-    marginTop: 14,
-    paddingTop: 12,
+    alignItems: "center",
+    marginTop: 12,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#F0F1F3",
+    borderTopColor: "#F1F5F9",
   },
-
   amountLabel: {
-    fontSize: 11,
-    color: "#9CA3AF",
+    fontSize: 10,
+    color: "#94A3B8",
   },
-
   amount: {
-    marginTop: 3,
-    fontSize: 14,
+    marginTop: 2,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#111827",
+    color: "#1E293B",
   },
-
-  statusContainer: {
-    alignItems: "flex-end",
-  },
-
-  status: {
+  statusPill: {
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
     fontSize: 11,
-    fontWeight: "600",
-    overflow: "hidden",
+    fontWeight: "700",
   },
-
-  review: {
+  pendingBadge: {
     backgroundColor: "#FEF3C7",
-    color: "#92400E",
   },
-
-  pending: {
-    backgroundColor: "#DBEAFE",
-    color: "#1D4ED8",
+  processingBadge: {
+    backgroundColor: "#EFF6FF",
   },
-
-  processing: {
-    backgroundColor: "#E0E7FF",
-    color: "#4338CA",
-  },
-
-  approved: {
+  completedBadge: {
     backgroundColor: "#DCFCE7",
-    color: "#166534",
   },
-
-  completed: {
-    backgroundColor: "#DCFCE7",
-    color: "#166534",
-  },
-
-  rejected: {
+  rejectedBadge: {
     backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
   },
-
   emptyCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
-    padding: 35,
+    padding: 32,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    marginTop: 10,
   },
-
-  emptyIcon: {
-    fontSize: 35,
-  },
-
   emptyTitle: {
     marginTop: 12,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: "#1E293B",
   },
-
   emptyText: {
     marginTop: 6,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 12,
+    lineHeight: 18,
     textAlign: "center",
-    color: "#6B7280",
-  },
-
-  infoCard: {
-    marginTop: 6,
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#EFF6FF",
-  },
-
-  infoTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#1E40AF",
-  },
-
-  infoText: {
-    marginTop: 6,
-    fontSize: 13,
-    lineHeight: 19,
-    color: "#4B5563",
+    color: "#64748B",
   },
 });
 
