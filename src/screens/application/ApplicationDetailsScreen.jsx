@@ -1,857 +1,322 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  StatusBar,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const APPLICATION_DETAILS = {
-  "BC-20260816": {
-    service: "Birth Certificate",
-    category: "Certificates",
-    id: "BC-20260816",
-    status: "Under Review",
-    date: "16 Aug 2026",
-    amount: "₹55",
-    governmentFee: "₹50",
-    convenienceFee: "₹5",
-    description:
-      "Your Birth Certificate application has been received and is currently under document review.",
-    documents: [
-      "Proof of Birth from Hospital",
-      "Mother's Aadhaar Card",
-      "Father's Aadhaar Card",
-      "Address Proof",
-    ],
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "16 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Uploaded",
-        date: "16 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Document Verification",
-        date: "In Progress",
-        completed: false,
-        current: true,
-      },
-      {
-        title: "Application Approved",
-        date: "Pending",
-        completed: false,
-      },
-      {
-        title: "Certificate Available",
-        date: "Pending",
-        completed: false,
-      },
-    ],
-  },
-
-  "PAN-20260812": {
-    service: "PAN Card",
-    category: "PAN Card",
-    id: "PAN-20260812",
-    status: "Completed",
-    date: "12 Aug 2026",
-    amount: "₹110",
-    governmentFee: "₹100",
-    convenienceFee: "₹10",
-    description:
-      "Your PAN Card application has been successfully processed.",
-    documents: [
-      "Identity Proof",
-      "Address Proof",
-      "Passport Size Photograph",
-    ],
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "12 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verified",
-        date: "13 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Application Processed",
-        date: "14 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "PAN Card Generated",
-        date: "15 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Completed",
-        date: "15 Aug 2026",
-        completed: true,
-      },
-    ],
-  },
-
-  "AAD-20260810": {
-    service: "Aadhaar Update",
-    category: "Aadhaar Card",
-    id: "AAD-20260810",
-    status: "Pending",
-    date: "10 Aug 2026",
-    amount: "₹50",
-    governmentFee: "₹50",
-    convenienceFee: "₹0",
-    description:
-      "Your Aadhaar update request is waiting to be processed.",
-    documents: [
-      "Aadhaar Card",
-      "Address Proof",
-    ],
-    timeline: [
-      {
-        title: "Request Submitted",
-        date: "10 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verification",
-        date: "Pending",
-        completed: false,
-        current: true,
-      },
-      {
-        title: "Update Processing",
-        date: "Pending",
-        completed: false,
-      },
-      {
-        title: "Update Completed",
-        date: "Pending",
-        completed: false,
-      },
-    ],
-  },
-
-  "INC-20260808": {
-    service: "Income Certificate",
-    category: "Certificates",
-    id: "INC-20260808",
-    status: "Processing",
-    date: "08 Aug 2026",
-    amount: "₹60",
-    governmentFee: "₹55",
-    convenienceFee: "₹5",
-    description:
-      "Your Income Certificate application is currently being processed.",
-    documents: [
-      "Income Proof",
-      "Identity Proof",
-      "Address Proof",
-    ],
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "08 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verified",
-        date: "09 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Application Processing",
-        date: "In Progress",
-        completed: false,
-        current: true,
-      },
-      {
-        title: "Certificate Issued",
-        date: "Pending",
-        completed: false,
-      },
-    ],
-  },
-
-  "DOM-20260805": {
-    service: "Domicile Certificate",
-    category: "Certificates",
-    id: "DOM-20260805",
-    status: "Approved",
-    date: "05 Aug 2026",
-    amount: "₹75",
-    governmentFee: "₹70",
-    convenienceFee: "₹5",
-    description:
-      "Your Domicile Certificate application has been approved.",
-    documents: [
-      "Address Proof",
-      "Identity Proof",
-      "Residence Proof",
-    ],
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "05 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verified",
-        date: "06 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Application Approved",
-        date: "08 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Certificate Available",
-        date: "09 Aug 2026",
-        completed: true,
-      },
-    ],
-  },
-
-  "DL-20260803": {
-    service: "Driving Licence",
-    category: "Transport",
-    id: "DL-20260803",
-    status: "Processing",
-    date: "03 Aug 2026",
-    amount: "₹350",
-    governmentFee: "₹300",
-    convenienceFee: "₹50",
-    description:
-      "Your Driving Licence application is currently being processed.",
-    documents: [
-      "Aadhaar Card",
-      "Address Proof",
-      "Medical Certificate",
-    ],
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "03 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verified",
-        date: "04 Aug 2026",
-        completed: true,
-      },
-      {
-        title: "Application Processing",
-        date: "In Progress",
-        completed: false,
-        current: true,
-      },
-      {
-        title: "Licence Issued",
-        date: "Pending",
-        completed: false,
-      },
-    ],
-  },
-
-  "MAR-20260730": {
-    service: "Marriage Certificate",
-    category: "Certificates",
-    id: "MAR-20260730",
-    status: "Rejected",
-    date: "30 Jul 2026",
-    amount: "₹100",
-    governmentFee: "₹95",
-    convenienceFee: "₹5",
-    description:
-      "Your application could not be approved because the submitted documents require correction.",
-    documents: [
-      "Marriage Proof",
-      "Identity Proof",
-      "Address Proof",
-    ],
-    rejectionReason:
-      "The uploaded address proof could not be verified. Please upload a valid address document and re-apply.",
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "30 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verification",
-        date: "31 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Application Rejected",
-        date: "02 Aug 2026",
-        completed: true,
-      },
-    ],
-  },
-
-  "PAN-20260728": {
-    service: "PAN Correction",
-    category: "PAN Card",
-    id: "PAN-20260728",
-    status: "Completed",
-    date: "28 Jul 2026",
-    amount: "₹110",
-    governmentFee: "₹100",
-    convenienceFee: "₹10",
-    description:
-      "Your PAN correction request has been completed successfully.",
-    documents: [
-      "PAN Card",
-      "Identity Proof",
-      "Supporting Document",
-    ],
-    timeline: [
-      {
-        title: "Correction Request Submitted",
-        date: "28 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verified",
-        date: "29 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Correction Processed",
-        date: "30 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Completed",
-        date: "31 Jul 2026",
-        completed: true,
-      },
-    ],
-  },
-
-  "AAD-20260725": {
-    service: "Aadhaar Mobile Update",
-    category: "Aadhaar Card",
-    id: "AAD-20260725",
-    status: "Pending",
-    date: "25 Jul 2026",
-    amount: "₹50",
-    governmentFee: "₹50",
-    convenienceFee: "₹0",
-    description:
-      "Your Aadhaar mobile number update request is pending verification.",
-    documents: [
-      "Aadhaar Card",
-      "Mobile Number Proof",
-    ],
-    timeline: [
-      {
-        title: "Request Submitted",
-        date: "25 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Verification",
-        date: "Pending",
-        completed: false,
-        current: true,
-      },
-      {
-        title: "Mobile Number Updated",
-        date: "Pending",
-        completed: false,
-      },
-    ],
-  },
-
-  "INC-20260722": {
-    service: "Income Certificate",
-    category: "Certificates",
-    id: "INC-20260722",
-    status: "Approved",
-    date: "22 Jul 2026",
-    amount: "₹60",
-    governmentFee: "₹55",
-    convenienceFee: "₹5",
-    description:
-      "Your Income Certificate has been approved and is available for download.",
-    documents: [
-      "Income Proof",
-      "Identity Proof",
-      "Address Proof",
-    ],
-    timeline: [
-      {
-        title: "Application Submitted",
-        date: "22 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Documents Verified",
-        date: "23 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Application Approved",
-        date: "25 Jul 2026",
-        completed: true,
-      },
-      {
-        title: "Certificate Available",
-        date: "25 Jul 2026",
-        completed: true,
-      },
-    ],
-  },
-};
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchApplicationDetails,
+  progressApplicationStatus,
+} from "../../store/slices/services/serviceSlice";
 
 const ApplicationDetailsScreen = ({ navigation, route }) => {
-  const applicationId =
-    route?.params?.applicationId;
+  const dispatch = useDispatch();
+  const routeApp = route?.params?.application;
+  const appId = route?.params?.applicationId || routeApp?.applicationId || routeApp?.id || "BC-20260816";
 
-  const application =
-    APPLICATION_DETAILS[applicationId];
+  const { selectedApplication, loading } = useSelector(
+    (state) => state.services
+  );
 
-  if (!application) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>
-            Application not found
-          </Text>
+  const [simulating, setSimulating] = useState(false);
 
-          <Text style={styles.errorText}>
-            We could not find the requested application.
-          </Text>
+  const app = selectedApplication || routeApp || {
+    applicationId: appId,
+    serviceName: "Birth Certificate",
+    category: "Certificates",
+    applicantName: "Sanu Pandey",
+    amount: 55,
+    formattedAmount: "₹55",
+    status: "Pending",
+    dateFormatted: "Today",
+    timeline: [
+      {
+        title: "Application Submitted",
+        description: "Application successfully submitted with fee of ₹55",
+        status: "done",
+        timestamp: "Today, 10:30 AM",
+      },
+      {
+        title: "Documents Under Verification",
+        description: "Assigned to Municipal Sub-Registrar Officer",
+        status: "processing",
+        timestamp: "In progress",
+      },
+      {
+        title: "State Department Approval",
+        description: "Awaiting digital sign-off from authority",
+        status: "pending",
+        timestamp: "Next step",
+      },
+      {
+        title: "Certificate Issued & Dispatched",
+        description: "Digital certificate ready in vault",
+        status: "pending",
+        timestamp: "Final delivery",
+      },
+    ],
+  };
 
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.backButtonText}>
-              Go Back
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  useEffect(() => {
+    if (appId) {
+      dispatch(fetchApplicationDetails(appId));
+    }
+  }, [appId, dispatch]);
 
-  const isRejected =
-    application.status === "Rejected";
+  const currentStatus = app.status || "Pending";
 
-  const isCompleted =
-    application.status === "Completed" ||
-    application.status === "Approved";
+  const handleAdminProgress = async () => {
+    let nextStatus = "Processing";
+    if (currentStatus === "Pending" || currentStatus === "Under Review") {
+      nextStatus = "Processing";
+    } else if (currentStatus === "Processing") {
+      nextStatus = "Approved";
+    } else if (currentStatus === "Approved") {
+      nextStatus = "Completed";
+    } else {
+      nextStatus = "Pending";
+    }
 
-  const getStatusStyle = () => {
-    switch (application.status) {
-      case "Completed":
-      case "Approved":
-        return styles.statusSuccess;
-
-      case "Rejected":
-        return styles.statusRejected;
-
-      case "Pending":
-        return styles.statusPending;
-
-      default:
-        return styles.statusProcessing;
+    setSimulating(true);
+    try {
+      await dispatch(
+        progressApplicationStatus({ id: appId, status: nextStatus })
+      ).unwrap();
+      Alert.alert(
+        "Admin Verification Simulation 🏛️",
+        `Application ${appId} status has been updated to '${nextStatus}'.`
+      );
+    } catch (err) {
+      Alert.alert("Error", err || "Unable to update status");
+    } finally {
+      setSimulating(false);
     }
   };
 
+  const handleDownloadReceipt = () => {
+    Alert.alert(
+      "Receipt Downloaded",
+      `Payment receipt for ${app.serviceName || "Service"} (${appId}) saved to downloads.`
+    );
+  };
+
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top"]}
-    >
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <StatusBar barStyle="light-content" backgroundColor="#1D4ED8" />
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backIconButton}
+          style={styles.backButton}
           onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>
-          Application Details
-        </Text>
+        <Text style={styles.headerTitle}>Application Details</Text>
 
-        <View style={styles.headerSpacer} />
+        <TouchableOpacity
+          style={styles.shareBtn}
+          onPress={() =>
+            Alert.alert("Share", `Application ID: ${appId} - ${app.serviceName}`)
+          }
+          activeOpacity={0.7}
+        >
+          <Ionicons name="share-social-outline" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        {/* Application Header Card */}
-        <View style={styles.mainCard}>
-          <View style={styles.serviceIcon}>
-            <Text style={styles.serviceIconText}>
-              📄
-            </Text>
+        {/* Top Service Card */}
+        <View style={styles.heroCard}>
+          <View style={styles.serviceRow}>
+            <View style={styles.serviceIconWrap}>
+              <Ionicons name="document-text" size={24} color="#2563EB" />
+            </View>
+            <View style={styles.serviceTextWrap}>
+              <Text style={styles.serviceName}>
+                {app.serviceName || app.service || "Government Service"}
+              </Text>
+              <Text style={styles.appIdText}>{appId}</Text>
+            </View>
           </View>
 
-          <Text style={styles.serviceName}>
-            {application.service}
-          </Text>
+          <View style={styles.divider} />
 
-          <Text style={styles.applicationId}>
-            {application.id}
-          </Text>
+          <View style={styles.metaRow}>
+            <View>
+              <Text style={styles.metaLabel}>Applied By</Text>
+              <Text style={styles.metaValue}>
+                {app.applicantName || "Sanu Pandey"}
+              </Text>
+            </View>
 
-          <Text
-            style={[
-              styles.status,
-              getStatusStyle(),
-            ]}
-          >
-            {application.status}
-          </Text>
+            <View>
+              <Text style={styles.metaLabel}>Amount Paid</Text>
+              <Text style={[styles.metaValue, { color: "#16A34A" }]}>
+                {app.formattedAmount || `₹${app.amount || 55}`}
+              </Text>
+            </View>
+
+            <View>
+              <Text style={styles.metaLabel}>Status</Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  currentStatus === "Approved" || currentStatus === "Completed"
+                    ? styles.badgeApproved
+                    : currentStatus === "Processing"
+                    ? styles.badgeProcessing
+                    : styles.badgePending,
+                ]}
+              >
+                <Text style={styles.statusBadgeText}>{currentStatus}</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
-        {/* Description */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Application Status
-          </Text>
+        {/* Live Timeline Tracking */}
+        <Text style={styles.sectionHeading}>Official Verification Timeline</Text>
+        <View style={styles.timelineCard}>
+          {(app.timeline || []).map((step, idx) => {
+            const isDone = step.status === "done";
+            const isProcessing = step.status === "processing";
+            const isLast = idx === (app.timeline || []).length - 1;
 
-          <View style={styles.descriptionCard}>
-            <Text style={styles.descriptionText}>
-              {application.description}
-            </Text>
-          </View>
-        </View>
-
-        {/* Rejection */}
-        {isRejected && (
-          <View style={styles.rejectionCard}>
-            <Text style={styles.rejectionTitle}>
-              Application Rejected
-            </Text>
-
-            <Text style={styles.rejectionText}>
-              {application.rejectionReason}
-            </Text>
-
-            <TouchableOpacity
-              style={styles.reapplyButton}
-              onPress={() =>
-                console.log(
-                  "Re-apply:",
-                  application.id
-                )
-              }
-            >
-              <Text style={styles.reapplyText}>
-                Fix & Re-Apply
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Timeline */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              Application Timeline
-            </Text>
-
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate(
-                  "ApplicationTracking",
-                  {
-                    applicationId:
-                      application.id,
-                  }
-                )
-              }
-            >
-              <Text style={styles.trackLink}>
-                Track
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.timelineCard}>
-            {application.timeline.map(
-              (item, index) => {
-                const isLast =
-                  index ===
-                  application.timeline.length - 1;
-
-                return (
+            return (
+              <View key={idx} style={styles.timelineRow}>
+                <View style={styles.timelineLeft}>
                   <View
-                    key={`${item.title}-${index}`}
-                    style={styles.timelineRow}
+                    style={[
+                      styles.timelineDot,
+                      isDone
+                        ? styles.dotDone
+                        : isProcessing
+                        ? styles.dotProcessing
+                        : styles.dotPending,
+                    ]}
                   >
+                    {isDone ? (
+                      <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                    ) : isProcessing ? (
+                      <View style={styles.dotInner} />
+                    ) : null}
+                  </View>
+                  {!isLast && (
                     <View
-                      style={
-                        styles.timelineIndicator
-                      }
-                    >
-                      <View
-                        style={[
-                          styles.timelineDot,
-                          item.completed &&
-                            styles.timelineDotCompleted,
-                          item.current &&
-                            styles.timelineDotCurrent,
-                        ]}
-                      />
-                    </View>
-
-                    {!isLast && (
-                      <View
-                        style={[
-                          styles.timelineLine,
-                          item.completed &&
-                            styles.timelineLineCompleted,
-                        ]}
-                      />
-                    )}
-
-                    <View
-                      style={
-                        styles.timelineContent
-                      }
-                    >
-                      <Text
-                        style={
-                          styles.timelineTitle
-                        }
-                      >
-                        {item.title}
-                      </Text>
-
-                      <Text
-                        style={
-                          styles.timelineDate
-                        }
-                      >
-                        {item.date}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              }
-            )}
-          </View>
-        </View>
-
-        {/* Application Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Application Information
-          </Text>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                Service
-              </Text>
-
-              <Text style={styles.infoValue}>
-                {application.service}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                Category
-              </Text>
-
-              <Text style={styles.infoValue}>
-                {application.category}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                Application ID
-              </Text>
-
-              <Text style={styles.infoValue}>
-                {application.id}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                Submitted On
-              </Text>
-
-              <Text style={styles.infoValue}>
-                {application.date}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Documents */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Submitted Documents
-          </Text>
-
-          <View style={styles.documentsCard}>
-            {application.documents.map(
-              (document, index) => (
-                <View
-                  key={document}
-                  style={[
-                    styles.documentRow,
-                    index !==
-                      application.documents.length -
-                        1 &&
-                      styles.documentBorder,
-                  ]}
-                >
-                  <View
-                    style={styles.documentIcon}
-                  >
-                    <Text>📄</Text>
-                  </View>
-
-                  <View
-                    style={styles.documentInfo}
-                  >
-                    <Text
-                      style={
-                        styles.documentName
-                      }
-                    >
-                      {document}
-                    </Text>
-
-                    <Text
-                      style={
-                        styles.documentStatus
-                      }
-                    >
-                      Uploaded ✓
-                    </Text>
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={() =>
-                      console.log(
-                        "View document:",
-                        document
-                      )
-                    }
-                  >
-                    <Text
-                      style={
-                        styles.viewText
-                      }
-                    >
-                      View
-                    </Text>
-                  </TouchableOpacity>
+                      style={[
+                        styles.timelineLine,
+                        isDone ? styles.lineDone : styles.linePending,
+                      ]}
+                    />
+                  )}
                 </View>
-              )
-            )}
-          </View>
+
+                <View style={styles.timelineRight}>
+                  <View style={styles.timelineHeaderRow}>
+                    <Text
+                      style={[
+                        styles.stepTitle,
+                        isDone || isProcessing ? styles.stepTitleActive : null,
+                      ]}
+                    >
+                      {step.title}
+                    </Text>
+                    {step.timestamp && (
+                      <Text style={styles.stepTime}>{step.timestamp}</Text>
+                    )}
+                  </View>
+                  <Text style={styles.stepDesc}>{step.description}</Text>
+                </View>
+              </View>
+            );
+          })}
         </View>
 
-        {/* Payment */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              Payment Details
-            </Text>
-
-            <TouchableOpacity
-              onPress={() =>
-                console.log(
-                  "Payment details:",
-                  application.id
-                )
-              }
-            >
-              <Text style={styles.trackLink}>
-                View
-              </Text>
-            </TouchableOpacity>
+        {/* Admin Simulation Controller */}
+        <View style={styles.adminSimulationCard}>
+          <View style={styles.adminTopRow}>
+            <Ionicons name="construct-outline" size={20} color="#D97706" />
+            <Text style={styles.adminTitle}>Authority Approval Simulation</Text>
           </View>
+          <Text style={styles.adminDesc}>
+            Simulate administrative department verification, approval & final certificate delivery.
+          </Text>
 
-          <View style={styles.paymentCard}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                Government Fee
-              </Text>
+          <TouchableOpacity
+            style={styles.adminBtn}
+            onPress={handleAdminProgress}
+            disabled={simulating}
+            activeOpacity={0.8}
+          >
+            {simulating ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Text style={styles.adminBtnText}>
+                  Progress Status:{" "}
+                  {currentStatus === "Pending"
+                    ? "Verify Documents ➔"
+                    : currentStatus === "Processing"
+                    ? "Approve Application ➔"
+                    : currentStatus === "Approved"
+                    ? "Mark Delivered ➔"
+                    : "Reset to Pending ➔"}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
 
-              <Text style={styles.infoValue}>
-                {application.governmentFee}
-              </Text>
+        {/* Uploaded Documents Section */}
+        <Text style={styles.sectionHeading}>Supporting Documents</Text>
+        <View style={styles.docsCard}>
+          {[
+            "Proof of Birth from Hospital",
+            "Aadhaar Identity Card",
+            "Residential Address Proof",
+          ].map((doc, i) => (
+            <View key={i} style={styles.docItemRow}>
+              <Ionicons name="document-attach-outline" size={18} color="#2563EB" />
+              <Text style={styles.docName}>{doc}</Text>
+              <View style={styles.docVerifiedPill}>
+                <Ionicons name="checkmark-circle" size={12} color="#16A34A" />
+                <Text style={styles.docVerifiedText}>Attached</Text>
+              </View>
             </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>
-                Convenience Fee
-              </Text>
-
-              <Text style={styles.infoValue}>
-                {application.convenienceFee}
-              </Text>
-            </View>
-
-            <View style={styles.paymentDivider} />
-
-            <View style={styles.infoRow}>
-              <Text style={styles.totalLabel}>
-                Total Paid
-              </Text>
-
-              <Text style={styles.totalValue}>
-                {application.amount}
-              </Text>
-            </View>
-          </View>
+          ))}
         </View>
 
         {/* Actions */}
-        {isCompleted && (
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() =>
-              console.log(
-                "Download certificate:",
-                application.id
-              )
-            }
-          >
-            <Text style={styles.primaryButtonText}>
-              Download Document
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={styles.receiptButton}
+          onPress={handleDownloadReceipt}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="receipt-outline" size={18} color="#2563EB" />
+          <Text style={styles.receiptButtonText}>Download Payment Receipt</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() =>
-            navigation.goBack()
-          }
+          style={styles.helpButton}
+          onPress={() => navigation.navigate("HelpSupport")}
+          activeOpacity={0.8}
         >
-          <Text style={styles.secondaryButtonText}>
-            Back to Applications
-          </Text>
+          <Ionicons name="headset-outline" size={18} color="#475569" />
+          <Text style={styles.helpButtonText}>Need Help with Application?</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -859,411 +324,308 @@ const ApplicationDetailsScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#F7F9FC",
+    backgroundColor: "#1D4ED8",
   },
-
   header: {
-    height: 58,
+    height: 56,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1D4ED8",
   },
-
-  backIconButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
+  backButton: {
+    width: 36,
+    height: 36,
     alignItems: "center",
+    justifyContent: "center",
   },
-
-  backIcon: {
-    fontSize: 34,
-    color: "#111827",
-    lineHeight: 36,
-  },
-
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: "#FFFFFF",
   },
-
-  headerSpacer: {
-    width: 40,
-  },
-
-  content: {
-    padding: 16,
-    paddingBottom: 35,
-  },
-
-  mainCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 22,
+  shareBtn: {
+    width: 36,
+    height: 36,
     alignItems: "center",
-  },
-
-  serviceIcon: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: "#EFF6FF",
     justifyContent: "center",
-    alignItems: "center",
   },
-
-  serviceIconText: {
-    fontSize: 25,
+  content: {
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 40,
   },
-
-  serviceName: {
-    marginTop: 12,
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#111827",
-    textAlign: "center",
+  heroCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
-
-  applicationId: {
-    marginTop: 5,
-    fontSize: 13,
-    color: "#6B7280",
-  },
-
-  status: {
-    marginTop: 14,
-    paddingHorizontal: 13,
-    paddingVertical: 7,
-    borderRadius: 20,
-    fontSize: 12,
-    fontWeight: "700",
-    overflow: "hidden",
-  },
-
-  statusSuccess: {
-    backgroundColor: "#DCFCE7",
-    color: "#166534",
-  },
-
-  statusRejected: {
-    backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
-  },
-
-  statusPending: {
-    backgroundColor: "#DBEAFE",
-    color: "#1D4ED8",
-  },
-
-  statusProcessing: {
-    backgroundColor: "#FEF3C7",
-    color: "#92400E",
-  },
-
-  section: {
-    marginTop: 20,
-  },
-
-  sectionHeader: {
+  serviceRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
+    gap: 12,
   },
-
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 10,
+  serviceIconWrap: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: "#EFF6FF",
+    alignItems: "center",
+    justifyContent: "center",
   },
-
-  trackLink: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#2563EB",
+  serviceTextWrap: {
+    flex: 1,
   },
-
-  descriptionCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-  },
-
-  descriptionText: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: "#4B5563",
-  },
-
-  rejectionCard: {
-    marginTop: 18,
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#FEF2F2",
-    borderWidth: 1,
-    borderColor: "#FECACA",
-  },
-
-  rejectionTitle: {
+  serviceName: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#991B1B",
+    color: "#1E293B",
   },
-
-  rejectionText: {
-    marginTop: 7,
-    fontSize: 13,
-    lineHeight: 20,
-    color: "#7F1D1D",
+  appIdText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#2563EB",
+    marginTop: 2,
   },
-
-  reapplyButton: {
-    marginTop: 14,
-    alignSelf: "flex-start",
-    paddingHorizontal: 15,
-    paddingVertical: 9,
-    borderRadius: 9,
-    backgroundColor: "#DC2626",
+  divider: {
+    height: 1,
+    backgroundColor: "#F1F5F9",
+    marginVertical: 12,
   },
-
-  reapplyText: {
-    color: "#FFFFFF",
-    fontSize: 13,
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  metaLabel: {
+    fontSize: 10,
+    color: "#94A3B8",
+    marginBottom: 2,
+  },
+  metaValue: {
+    fontSize: 12,
     fontWeight: "700",
+    color: "#1E293B",
   },
-
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  badgePending: {
+    backgroundColor: "#FEF3C7",
+  },
+  badgeProcessing: {
+    backgroundColor: "#EFF6FF",
+  },
+  badgeApproved: {
+    backgroundColor: "#DCFCE7",
+  },
+  statusBadgeText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#1E293B",
+  },
+  sectionHeading: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 10,
+  },
   timelineCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 18,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
-
   timelineRow: {
-    minHeight: 65,
     flexDirection: "row",
-    position: "relative",
+    gap: 12,
   },
-
-  timelineIndicator: {
-    width: 24,
+  timelineLeft: {
     alignItems: "center",
+    width: 20,
   },
-
   timelineDot: {
-    width: 11,
-    height: 11,
-    borderRadius: 6,
-    backgroundColor: "#D1D5DB",
-    marginTop: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
-
-  timelineDotCompleted: {
+  dotDone: {
     backgroundColor: "#16A34A",
   },
-
-  timelineDotCurrent: {
+  dotProcessing: {
     backgroundColor: "#2563EB",
   },
-
+  dotPending: {
+    backgroundColor: "#E2E8F0",
+  },
+  dotInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FFFFFF",
+  },
   timelineLine: {
-    position: "absolute",
-    left: 11,
-    top: 15,
-    bottom: 0,
     width: 2,
-    backgroundColor: "#E5E7EB",
-  },
-
-  timelineLineCompleted: {
-    backgroundColor: "#86EFAC",
-  },
-
-  timelineContent: {
     flex: 1,
-    marginLeft: 10,
+    minHeight: 28,
+    marginVertical: 2,
+  },
+  lineDone: {
+    backgroundColor: "#16A34A",
+  },
+  linePending: {
+    backgroundColor: "#E2E8F0",
+  },
+  timelineRight: {
+    flex: 1,
     paddingBottom: 16,
   },
-
-  timelineTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#111827",
-  },
-
-  timelineDate: {
-    marginTop: 3,
-    fontSize: 12,
-    color: "#9CA3AF",
-  },
-
-  infoCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-  },
-
-  infoRow: {
+  timelineHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
   },
-
-  infoLabel: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
-
-  infoValue: {
-    maxWidth: "58%",
+  stepTitle: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#111827",
-    textAlign: "right",
+    color: "#64748B",
   },
-
-  documentsCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    paddingHorizontal: 16,
+  stepTitleActive: {
+    color: "#1E293B",
+    fontWeight: "700",
   },
-
-  documentRow: {
-    minHeight: 65,
+  stepTime: {
+    fontSize: 10,
+    color: "#94A3B8",
+  },
+  stepDesc: {
+    fontSize: 11,
+    color: "#64748B",
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  adminSimulationCard: {
+    backgroundColor: "#FFFBEB",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+  },
+  adminTopRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
   },
-
-  documentBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F1F3",
-  },
-
-  documentIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: "#F3F4F6",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  documentInfo: {
-    flex: 1,
-    marginLeft: 10,
-  },
-
-  documentName: {
+  adminTitle: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#111827",
+    fontWeight: "700",
+    color: "#92400E",
   },
-
-  documentStatus: {
-    marginTop: 3,
+  adminDesc: {
     fontSize: 11,
+    color: "#B45309",
+    marginBottom: 12,
+    lineHeight: 16,
+  },
+  adminBtn: {
+    backgroundColor: "#D97706",
+    borderRadius: 10,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  adminBtnText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  docsCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    gap: 10,
+  },
+  docItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 4,
+  },
+  docName: {
+    fontSize: 12,
+    color: "#334155",
+    flex: 1,
+  },
+  docVerifiedPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#DCFCE7",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    gap: 2,
+  },
+  docVerifiedText: {
+    fontSize: 9,
+    fontWeight: "700",
     color: "#16A34A",
   },
-
-  viewText: {
-    fontSize: 12,
-    fontWeight: "600",
+  receiptButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EFF6FF",
+    borderRadius: 12,
+    height: 48,
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    gap: 8,
+    marginBottom: 10,
+  },
+  receiptButtonText: {
+    fontSize: 13,
+    fontWeight: "700",
     color: "#2563EB",
   },
-
-  paymentCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-  },
-
-  paymentDivider: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginVertical: 4,
-  },
-
-  totalLabel: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#111827",
-  },
-
-  totalValue: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#111827",
-  },
-
-  primaryButton: {
-    height: 52,
-    borderRadius: 12,
-    backgroundColor: "#2563EB",
-    justifyContent: "center",
+  helpButton: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 24,
-  },
-
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-
-  secondaryButton: {
-    height: 52,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
     justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    height: 46,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: "#CBD5E1",
+    gap: 8,
+    marginBottom: 20,
   },
-
-  secondaryButtonText: {
-    color: "#374151",
-    fontSize: 15,
+  helpButtonText: {
+    fontSize: 13,
     fontWeight: "600",
-  },
-
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 25,
-  },
-
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#111827",
-  },
-
-  errorText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "#6B7280",
-    textAlign: "center",
-  },
-
-  backButton: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 11,
-    borderRadius: 10,
-    backgroundColor: "#2563EB",
-  },
-
-  backButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
+    color: "#475569",
   },
 });
 
