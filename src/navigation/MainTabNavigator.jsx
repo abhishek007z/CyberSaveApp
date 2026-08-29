@@ -16,6 +16,7 @@ import ServicesNavigator from "./ServicesNavigator";
 import ApplicationNavigator from "../screens/application/ApplicationNavigator";
 import WalletNavigator from "./WalletNavigator";
 import ProfileNavigator from "./ProfileNavigator";
+import { useTranslation } from "../i18n/useTranslation";
 
 const Tab = createBottomTabNavigator();
 
@@ -68,15 +69,17 @@ const getSubRouteName = (route) => {
   while (
     r?.state &&
     typeof r.state.index === "number" &&
-    Array.isArray(r.state.routes)
+    r.state.routes &&
+    r.state.routes[r.state.index]
   ) {
     r = r.state.routes[r.state.index];
   }
-  return r?.name;
+  return r?.name || null;
 };
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const currentRoute = state.routes[state.index];
   const focusedChildRouteName = getFocusedRouteNameFromRoute(currentRoute);
@@ -92,7 +95,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
   const TAB_CONFIG = {
     HomeTab: {
-      label: "Home",
+      label: t("tabHome"),
       targetScreen: "Home",
       icon: (focused, color) => (
         <Ionicons
@@ -103,7 +106,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       ),
     },
     Services: {
-      label: "Services",
+      label: t("tabServices"),
       targetScreen: "AllServices",
       icon: (focused, color) => (
         <Ionicons
@@ -114,7 +117,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       ),
     },
     Application: {
-      label: "Applications",
+      label: t("tabApplications"),
       targetScreen: "ApplicationHome",
       isCenter: true,
       icon: () => (
@@ -126,7 +129,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       ),
     },
     Wallet: {
-      label: "Wallet",
+      label: t("tabWallet"),
       targetScreen: "WalletHome",
       icon: (focused, color) => (
         <Ionicons
@@ -137,7 +140,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       ),
     },
     Profile: {
-      label: "Profile",
+      label: t("tabProfile"),
       targetScreen: "ProfileHome",
       icon: (focused, color) => (
         <Ionicons
