@@ -1,80 +1,21 @@
-// import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// import { NavigationContainer } from "@react-navigation/native";
-
-// import OnboardingNavigator from "./OnboardingNavigator";
-// import AuthNavigator from "./AuthNavigator";
-// import MainNavigator from "./MainNavigator";
-
-// const Stack = createNativeStackNavigator();
-
-// const AppNavigator = () => {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator screenOptions={{ headerShown: false }}>
-//         <Stack.Screen
-//           name="Onboarding"
-//           component={OnboardingNavigator}
-//         />
-
-//         <Stack.Screen
-//           name="Auth"
-//           component={AuthNavigator}
-//         />
-
-//         <Stack.Screen
-//           name="Main"
-//           component={MainNavigator}
-//         />
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-// };
-
-// export default AppNavigator;
-
-
 import React, { useEffect } from "react";
-
-import {
-  View,
-  ActivityIndicator,
-} from "react-native";
-
-import {
-  createNativeStackNavigator,
-} from "@react-navigation/native-stack";
-
-import {
-  NavigationContainer,
-} from "@react-navigation/native";
-
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
+import { View, ActivityIndicator } from "react-native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
 
 import OnboardingNavigator from "./OnboardingNavigator";
 import AuthNavigator from "./AuthNavigator";
 import MainNavigator from "./MainNavigator";
-
-import {
-  restoreAuth,
-} from "../store/slices/auth/authSlice";
-
-console.log("useDispatch =", useDispatch);
-console.log("useSelector =", useSelector);
-console.log("restoreAuth =", restoreAuth);
+import { restoreAuth } from "../store/slices/auth/authSlice";
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const dispatch = useDispatch();
 
-  const {
-    isAuthenticated,
-    authRestored,
-  } = useSelector(
-    (state) => state.auth
+  const { isAuthenticated, authRestored } = useSelector(
+    (state) => state.auth || {}
   );
 
   useEffect(() => {
@@ -88,13 +29,10 @@ const AppNavigator = () => {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#fff",
+          backgroundColor: "#FFFFFF",
         }}
       >
-        <ActivityIndicator
-          size="large"
-          color="#000"
-        />
+        <ActivityIndicator size="large" color="#2563EB" />
       </View>
     );
   }
@@ -107,22 +45,14 @@ const AppNavigator = () => {
         }}
       >
         {isAuthenticated ? (
-          <Stack.Screen
-            name="Main"
-            component={MainNavigator}
-          />
+          <Stack.Screen name="Main" component={MainNavigator} />
         ) : (
           <>
             <Stack.Screen
               name="Onboarding"
               component={OnboardingNavigator}
             />
-
-            <Stack.Screen
-              name="Auth"
-              component={AuthNavigator}
-            />
-            
+            <Stack.Screen name="Auth" component={AuthNavigator} />
           </>
         )}
       </Stack.Navigator>
