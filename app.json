@@ -10,6 +10,9 @@
     },
     "android": {
       "package": "com.abhishek00727.CyberSave"
-    }
+    },
+    "plugins": [
+      "expo-sharing"
+    ]
   }
 }
