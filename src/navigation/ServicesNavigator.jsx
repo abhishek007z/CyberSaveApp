@@ -5,6 +5,7 @@ import ServicesScreen from "../screens/services/ServicesScreen";
 import ServiceNavigator from "../screens/services/certificates/ServiceNavigator";
 import AadhaarNavigator from "../screens/services/aadhaar/AadhaarNavigator";
 import PanNavigator from "../screens/services/pan/PanNavigator";
+
 const Stack = createNativeStackNavigator();
 
 const ServicesNavigator = () => {
@@ -23,7 +24,8 @@ const ServicesNavigator = () => {
         name="Certificates"
         component={ServiceNavigator}
       />
-          <Stack.Screen
+
+      <Stack.Screen
         name="Aadhaar"
         component={AadhaarNavigator}
       />
