@@ -14,13 +14,29 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ApplicationRejectedScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
-  const application = route?.params?.application || {
-    applicationId: "CS9824721",
-    serviceName: "Income Certificate",
-    dateFormatted: "08 May 2024",
-    department: "Revenue Department",
-    rejectionReason:
-      "Document mismatch. The signature on the submitted Aadhaar Card does not match the signature on the self-declaration form. Please re-submit with clear signatures.",
+  const rawApp = route?.params?.application || {};
+  const applicationId =
+    rawApp.applicationId ||
+    rawApp.id ||
+    route?.params?.applicationId ||
+    "APP-2026";
+  const serviceName =
+    rawApp.serviceName || rawApp.service || "Government Service Application";
+  const dateFormatted = rawApp.dateFormatted || rawApp.submittedAt || "Recent";
+  const department = rawApp.department || "Competent Verification Authority";
+  const rejectionReason =
+    rawApp.rejectionReason ||
+    rawApp.reason ||
+    rawApp.note ||
+    route?.params?.rejectionReason ||
+    "Document mismatch or incomplete verification. Please re-apply with clear and verified proofs.";
+
+  const application = {
+    applicationId,
+    serviceName,
+    dateFormatted,
+    department,
+    rejectionReason,
   };
 
   const handleReApply = () => {
@@ -71,7 +87,7 @@ const ApplicationRejectedScreen = ({ navigation, route }) => {
           <Ionicons name="arrow-back" size={20} color="#1E293B" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Application Rejected</Text>
+        <Text style={styles.headerTitle}>Application Detail</Text>
 
         <View style={{ width: 38 }} />
       </LinearGradient>
@@ -82,10 +98,10 @@ const ApplicationRejectedScreen = ({ navigation, route }) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Rejection Banner */}
+          {/* Figma Image 2: Red Hero Rejection Banner */}
           <View style={styles.rejectionCard}>
             <View style={styles.iconCircle}>
-              <Ionicons name="close-circle" size={28} color="#EF4444" />
+              <Ionicons name="close-circle" size={24} color="#FFFFFF" />
             </View>
             <View style={styles.rejectionContent}>
               <Text style={styles.rejectionTitle}>Application Rejected</Text>
@@ -95,37 +111,56 @@ const ApplicationRejectedScreen = ({ navigation, route }) => {
             </View>
           </View>
 
-          {/* Reason Section */}
-          <Text style={styles.sectionTitle}>Reason for Rejection</Text>
+          {/* Figma Image 2: Rejection Reason Card */}
           <View style={styles.reasonCard}>
+            <Text style={styles.reasonTitle}>Rejection Reason</Text>
             <Text style={styles.reasonText}>{application.rejectionReason}</Text>
           </View>
 
-          {/* Corrective Action Steps */}
-          <Text style={styles.sectionTitle}>Recommended Next Steps</Text>
-          <View style={styles.actionCard}>
-            <View style={styles.stepRow}>
-              <Ionicons name="document-attach-outline" size={20} color="#2563EB" />
-              <Text style={styles.stepText}>
-                Ensure all documents are clearly scanned and signatures match.
-              </Text>
+          {/* Figma Image 2: Summary Card */}
+          <View style={styles.summaryCard}>
+            <Text style={styles.cardHeaderTitle}>Summary</Text>
+            
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Service</Text>
+              <Text style={styles.summaryValBold}>{application.serviceName}</Text>
             </View>
-            <View style={styles.stepRow}>
-              <Ionicons name="refresh-outline" size={20} color="#2563EB" />
-              <Text style={styles.stepText}>
-                Re-apply directly or file an online grievance redressal appeal.
-              </Text>
+
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Submitted Date</Text>
+              <Text style={styles.summaryValBold}>{application.dateFormatted}</Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Department</Text>
+              <Text style={styles.summaryValBold}>{application.department}</Text>
             </View>
           </View>
 
-          {/* Action Buttons */}
+          {/* Figma Image 2: Submitted Documents Card */}
+          <View style={styles.summaryCard}>
+            <Text style={styles.cardHeaderTitle}>Submitted Documents</Text>
+            
+            <View style={styles.docRowItem}>
+              <View style={styles.docIconBox}>
+                <Ionicons name="document-text" size={20} color="#2563EB" />
+              </View>
+              <View style={styles.docInfoWrap}>
+                <Text style={styles.docFileName} numberOfLines={1}>
+                  Aadhaar_Card.pdf
+                </Text>
+                <Text style={styles.docFileSize}>840 KB</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Figma Image 2: Action Buttons */}
           <TouchableOpacity
             style={styles.reApplyBtn}
             onPress={handleReApply}
             activeOpacity={0.85}
           >
-            <Ionicons name="refresh" size={18} color="#FFFFFF" />
-            <Text style={styles.reApplyBtnText}>Re-Apply with Correct Proofs</Text>
+            <Text style={styles.reApplyBtnText}>Re-Apply Application</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -133,7 +168,7 @@ const ApplicationRejectedScreen = ({ navigation, route }) => {
             onPress={handleAppeal}
             activeOpacity={0.85}
           >
-            <Text style={styles.appealBtnText}>File an Appeal</Text>
+            <Text style={styles.appealBtnText}>Appeal Rejection</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -181,24 +216,22 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 18,
     paddingTop: 20,
-    paddingBottom: 110,
+    paddingBottom: 40,
   },
   rejectionCard: {
+    backgroundColor: "#EF4444",
+    borderRadius: 18,
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FEF2F2",
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#FECACA",
-    marginBottom: 18,
     gap: 12,
+    marginBottom: 16,
   },
   iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -206,92 +239,129 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rejectionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#991B1B",
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#FFFFFF",
   },
   rejectionSub: {
-    fontSize: 12,
-    color: "#DC2626",
+    fontSize: 12.5,
+    color: "rgba(255, 255, 255, 0.9)",
     marginTop: 2,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#0F172A",
-    marginBottom: 10,
+    fontWeight: "500",
   },
   reasonCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: "#FEF2F2",
+    borderRadius: 18,
+    padding: 18,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginBottom: 18,
+    borderColor: "#FECACA",
+    marginBottom: 16,
+  },
+  reasonTitle: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "#DC2626",
+    marginBottom: 8,
   },
   reasonText: {
     fontSize: 13,
+    color: "#991B1B",
     lineHeight: 20,
-    color: "#334155",
+    fontWeight: "500",
   },
-  actionCard: {
+  summaryCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 18,
+    padding: 18,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    gap: 12,
+    marginBottom: 16,
+    gap: 14,
   },
-  stepRow: {
+  cardHeaderTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#0F172A",
+    marginBottom: 2,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  summaryLabel: {
+    fontSize: 13,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  summaryValBold: {
+    fontSize: 13.5,
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  docRowItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
+    backgroundColor: "#F8FAFC",
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
   },
-  stepText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#334155",
-  },
-  bottomBar: {
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
-    gap: 10,
-  },
-  reApplyBtn: {
-    flexDirection: "row",
+  docIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#EFF6FF",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+  },
+  docInfoWrap: {
+    flex: 1,
+  },
+  docFileName: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  docFileSize: {
+    fontSize: 11.5,
+    color: "#64748B",
+    marginTop: 2,
+  },
+  reApplyBtn: {
     backgroundColor: "#2563EB",
     borderRadius: 14,
-    height: 50,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
     shadowColor: "#2563EB",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
     elevation: 3,
   },
   reApplyBtnText: {
-    fontSize: 14,
+    fontSize: 14.5,
     fontWeight: "700",
     color: "#FFFFFF",
   },
   appealBtn: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
-    height: 44,
     borderWidth: 1,
     borderColor: "#E2E8F0",
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   appealBtnText: {
-    fontSize: 13,
+    fontSize: 14.5,
     fontWeight: "700",
-    color: "#475569",
+    color: "#1E293B",
   },
 });
 
