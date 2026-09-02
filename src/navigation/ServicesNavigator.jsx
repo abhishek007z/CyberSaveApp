@@ -5,6 +5,7 @@ import ServicesScreen from "../screens/services/ServicesScreen";
 import ServiceNavigator from "../screens/services/certificates/ServiceNavigator";
 import AadhaarNavigator from "../screens/services/aadhaar/AadhaarNavigator";
 import PanNavigator from "../screens/services/pan/PanNavigator";
+import CustomCategoryHubScreen from "../screens/services/custom/CustomCategoryHubScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,11 @@ const ServicesNavigator = () => {
       <Stack.Screen
         name="AllServices"
         component={ServicesScreen}
+      />
+
+      <Stack.Screen
+        name="CustomCategoryHub"
+        component={CustomCategoryHubScreen}
       />
 
       <Stack.Screen
