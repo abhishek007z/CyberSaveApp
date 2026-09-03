@@ -63,11 +63,7 @@ const ApplicationRejectedScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#1E3A8A"
-        translucent={false}
-      />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent={true} />
 
       {/* TOP BLUE GRADIENT HEADER */}
       <LinearGradient
@@ -76,7 +72,7 @@ const ApplicationRejectedScreen = ({ navigation, route }) => {
         end={{ x: 1, y: 1 }}
         style={[
           styles.header,
-          { paddingTop: Math.max(insets.top, 20) + 14, paddingBottom: 44 },
+          { paddingTop: (insets.top || StatusBar.currentHeight || 24) + 14, paddingBottom: 48 },
         ]}
       >
         <TouchableOpacity
@@ -186,6 +182,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
   },
   circleBtn: {
     width: 38,
@@ -207,10 +205,17 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     flex: 1,
+    marginHorizontal: 14,
+    marginTop: -32,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    marginTop: -22,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
     overflow: "hidden",
   },
   scrollContent: {
