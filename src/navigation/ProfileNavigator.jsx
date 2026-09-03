@@ -12,6 +12,7 @@ import FAQScreen from "../screens/profile/FAQScreen";
 import SupportChatScreen from "../screens/profile/SupportChatScreen";
 import RaiseTicketScreen from "../screens/profile/RaiseTicketScreen";
 import FeedbackScreen from "../screens/profile/FeedbackScreen";
+import LanguageScreen from "../screens/language/LanguageScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -75,6 +76,11 @@ const ProfileNavigator = () => {
       <Stack.Screen
         name="Feedback"
         component={FeedbackScreen}
+      />
+
+      <Stack.Screen
+        name="Language"
+        component={LanguageScreen}
       />
     </Stack.Navigator>
   );
