@@ -16,9 +16,11 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useSelector } from "react-redux";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const ViewCertificateScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
+  const { t, isHindi } = useTranslation();
   const user = useSelector((state) => state.auth?.user);
   const rawApp = route?.params?.application || {};
   const [downloading, setDownloading] = useState(false);
@@ -39,6 +41,165 @@ const ViewCertificateScreen = ({ navigation, route }) => {
   const status = rawApp.status || "Approved";
   const isApproved = status === "Approved" || status === "Completed";
 
+  const getCertificateHtml = () => {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Official Certificate - ${application.serviceName}</title>
+          <style>
+            @page { size: A4 portrait; margin: 10mm; }
+            * { box-sizing: border-box; }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+              background: #FFFFFF;
+              color: #0F172A;
+              margin: 0;
+              padding: 16px;
+            }
+            .cert-border {
+              border: 4px double #1E3A8A;
+              border-radius: 16px;
+              padding: 28px 24px;
+              background: #FFFFFF;
+              position: relative;
+            }
+            .watermark-box {
+              border: 1.5px solid #93C5FD;
+              border-radius: 14px;
+              background: #F0F7FF;
+              padding: 24px 16px;
+              text-align: center;
+              margin-bottom: 24px;
+            }
+            .emblem { font-size: 36px; line-height: 1; margin-bottom: 8px; }
+            .gov-title {
+              font-size: 18px;
+              font-weight: 900;
+              color: #1E3A8A;
+              letter-spacing: 1.5px;
+              text-transform: uppercase;
+              margin: 0 0 4px 0;
+            }
+            .gov-sub {
+              font-size: 12px;
+              font-weight: 600;
+              color: #3B82F6;
+              margin: 0;
+            }
+            .cert-heading {
+              font-size: 20px;
+              font-weight: 800;
+              color: #1E3A8A;
+              text-align: center;
+              margin: 18px 0 6px 0;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .cert-for {
+              font-size: 13px;
+              color: #64748B;
+              text-align: center;
+              margin-bottom: 20px;
+            }
+            .name-title {
+              font-size: 26px;
+              font-weight: 800;
+              color: #0F172A;
+              text-align: center;
+              margin: 0 0 12px 0;
+            }
+            .meta-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 20px 0;
+              background: #F8FAFC;
+              border-radius: 10px;
+              overflow: hidden;
+            }
+            .meta-table td {
+              padding: 10px 16px;
+              border-bottom: 1px solid #E2E8F0;
+              font-size: 13.5px;
+            }
+            .meta-table td.lbl {
+              font-weight: 600;
+              color: #64748B;
+              width: 40%;
+            }
+            .meta-table td.val {
+              font-weight: 700;
+              color: #0F172A;
+            }
+            .badge-verified {
+              display: inline-block;
+              background: #DCFCE7;
+              color: #15803D;
+              padding: 8px 20px;
+              border-radius: 20px;
+              font-size: 13px;
+              font-weight: 700;
+              border: 1px solid #86EFAC;
+              margin: 16px 0;
+            }
+            .divider { height: 1.5px; background: #E2E8F0; margin: 20px 0; }
+            .footer-text {
+              text-align: center;
+              font-size: 11px;
+              color: #94A3B8;
+              line-height: 1.5;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="cert-border">
+            <div class="watermark-box">
+              <div class="emblem">🏛️</div>
+              <h2 class="gov-title">GOVERNMENT OF INDIA</h2>
+              <p class="gov-sub">Digital Seva Portal • National E-Governance Division</p>
+            </div>
+
+            <div class="cert-heading">${application.serviceName}</div>
+            <div class="cert-for">This is to officially certify that the credential record belongs to:</div>
+
+            <h1 class="name-title">${application.applicantName}</h1>
+
+            <table class="meta-table">
+              <tr>
+                <td class="lbl">Certificate Number:</td>
+                <td class="val">${application.certificateNumber}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Application ID:</td>
+                <td class="val">${application.applicationId}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Date of Issue:</td>
+                <td class="val">${application.certificateIssuedOn}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Verification Status:</td>
+                <td class="val" style="color: #16A34A;">Digitally Approved & Certified</td>
+              </tr>
+            </table>
+
+            <div style="text-align: center;">
+              <div class="badge-verified">✓ Digitally Signed & Officially Verified</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="footer-text">
+              This is a secure, digitally verified government certificate issued under the Information Technology Act, 2000.<br/>
+              CyberSave Portal • Government of India
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  };
+
   const handleDownloadPdf = async () => {
     if (!isApproved) {
       Alert.alert(
@@ -51,56 +212,14 @@ const ViewCertificateScreen = ({ navigation, route }) => {
     setDownloading(true);
 
     try {
-      const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Official Certificate - ${application.serviceName}</title>
-            <style>
-              @page { size: A4 portrait; margin: 12mm; }
-              * { box-sizing: border-box; }
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #FFF; color: #0F172A; margin: 0; padding: 20px; }
-              .card { border: 3px double #1E3A8A; border-radius: 16px; padding: 32px 28px; background: #FFFFFF; position: relative; }
-              .watermark-box { border: 1.5px solid #93C5FD; border-radius: 14px; background: #F8FAFC; padding: 32px 20px; text-align: center; margin-bottom: 28px; }
-              .emblem-icon { font-size: 38px; line-height: 1; margin-bottom: 12px; }
-              .gov-title { font-size: 18px; font-weight: 900; color: #1E3A8A; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 6px 0; }
-              .gov-watermark { font-size: 12px; font-weight: 600; color: #64748B; margin: 0; }
-              .name-title { font-size: 26px; font-weight: 800; color: #0F172A; text-align: center; margin: 0 0 10px 0; }
-              .meta-sub { font-size: 13.5px; font-weight: 600; color: #475569; text-align: center; margin: 0 0 6px 0; }
-              .divider { height: 1px; background: #E2E8F0; margin: 24px 0; }
-              .badge-verified { display: inline-block; background: #DCFCE7; color: #15803D; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid #86EFAC; margin-top: 14px; }
-              .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #94A3B8; }
-            </style>
-          </head>
-          <body>
-            <div class="card">
-              <div class="watermark-box">
-                <div class="emblem-icon">🏛️</div>
-                <h2 class="gov-title">GOVERNMENT OF INDIA</h2>
-                <p class="gov-watermark">Aadhaar Certified Watermark • Digital Seva Portal</p>
-              </div>
+      const html = getCertificateHtml();
 
-              <h1 class="name-title">${application.applicantName}</h1>
-              <p class="meta-sub">Certificate No: ${application.certificateNumber}</p>
-              <p class="meta-sub">Issued on: ${application.certificateIssuedOn}</p>
-
-              <div style="text-align: center;">
-                <div class="badge-verified">✓ Digitally Signed & Officially Verified</div>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="footer">
-                This is a digitally issued computer-generated certificate. CyberSave e-Governance System • Government of India
-              </div>
-            </div>
-          </body>
-        </html>
-      `;
-
+      // Launch native Android PDF Viewer / Save-as-PDF manager
+      await Print.printAsync({ html });
+    } catch (err) {
+      console.log("[ViewCertificate] Print fallback to file sharing:", err);
       try {
-        const { uri } = await Print.printToFileAsync({ html });
+        const { uri } = await Print.printToFileAsync({ html: getCertificateHtml() });
         const isAvailable = await Sharing.isAvailableAsync();
         if (isAvailable) {
           await Sharing.shareAsync(uri, {
@@ -108,19 +227,13 @@ const ViewCertificateScreen = ({ navigation, route }) => {
             mimeType: "application/pdf",
             dialogTitle: `Download ${application.serviceName} Certificate`,
           });
-        } else {
-          await Print.printAsync({ html });
         }
-      } catch (printErr) {
-        console.log("[ViewCertificate] Fallback to printAsync:", printErr);
-        await Print.printAsync({ html });
+      } catch (shareErr) {
+        Alert.alert(
+          "Certificate Ready",
+          `Certificate details for ${application.applicantName} (${application.certificateNumber}) are generated.`
+        );
       }
-    } catch (err) {
-      console.error("[ViewCertificate] Download Error:", err);
-      Alert.alert(
-        "Certificate Downloaded",
-        `Certificate details for ${application.applicantName} (${application.certificateNumber}) processed.`
-      );
     } finally {
       setDownloading(false);
     }
@@ -128,21 +241,31 @@ const ViewCertificateScreen = ({ navigation, route }) => {
 
   const handleShare = async () => {
     try {
-      await Share.share({
-        message: `CyberSave Verified Government Certificate\nService: ${application.serviceName}\nCertificate No: ${application.certificateNumber}\nIssued To: ${application.applicantName}\nVerification Link: https://cybersave.gov.in/verify/${application.certificateNumber}`,
-      });
+      const html = getCertificateHtml();
+      const { uri } = await Print.printToFileAsync({ html });
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync(uri, {
+          UTI: ".pdf",
+          mimeType: "application/pdf",
+          dialogTitle: `Share ${application.serviceName} Certificate`,
+        });
+      } else {
+        await Share.share({
+          message: `CyberSave Verified Government Certificate\nService: ${application.serviceName}\nCertificate No: ${application.certificateNumber}\nIssued To: ${application.applicantName}\nVerification Link: https://cybersave.gov.in/verify/${application.certificateNumber}`,
+        });
+      }
     } catch (err) {
       console.log("Share error:", err);
+      Share.share({
+        message: `CyberSave Verified Government Certificate\nService: ${application.serviceName}\nCertificate No: ${application.certificateNumber}\nIssued To: ${application.applicantName}`,
+      });
     }
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#1E3A8A"
-        translucent={false}
-      />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent={true} />
 
       {/* TOP BLUE GRADIENT HEADER */}
       <LinearGradient
@@ -151,7 +274,7 @@ const ViewCertificateScreen = ({ navigation, route }) => {
         end={{ x: 1, y: 1 }}
         style={[
           styles.header,
-          { paddingTop: Math.max(insets.top, 20) + 14, paddingBottom: 44 },
+          { paddingTop: (insets.top || StatusBar.currentHeight || 24) + 14, paddingBottom: 48 },
         ]}
       >
         <TouchableOpacity
@@ -162,7 +285,7 @@ const ViewCertificateScreen = ({ navigation, route }) => {
           <Ionicons name="arrow-back" size={20} color="#1E293B" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>View Certificate</Text>
+        <Text style={styles.headerTitle}>{t("viewCertificate")}</Text>
 
         <View style={{ width: 38 }} />
       </LinearGradient>
@@ -180,17 +303,17 @@ const ViewCertificateScreen = ({ navigation, route }) => {
               <View style={styles.docIconWrap}>
                 <Ionicons name="document-text-outline" size={36} color="#3B82F6" />
               </View>
-              <Text style={styles.govTitle}>GOVERNMENT OF INDIA</Text>
-              <Text style={styles.govWatermark}>Aadhaar Certified Watermark</Text>
+              <Text style={styles.govTitle}>{t("govOfIndia")}</Text>
+              <Text style={styles.govWatermark}>{t("aadhaarWatermark")}</Text>
             </View>
 
             {/* Applicant & Details */}
             <Text style={styles.nameText}>{application.applicantName}</Text>
             <Text style={styles.certMetaText}>
-              Certificate No: {application.certificateNumber}
+              {t("certificateNumber")}: {application.certificateNumber}
             </Text>
             <Text style={styles.certMetaText}>
-              Issued on: {application.certificateIssuedOn}
+              {t("issuedOn")}: {application.certificateIssuedOn}
             </Text>
           </View>
 
@@ -206,7 +329,7 @@ const ViewCertificateScreen = ({ navigation, route }) => {
             ) : (
               <>
                 <Ionicons name="download-outline" size={19} color="#FFFFFF" />
-                <Text style={styles.downloadBtnText}>Download PDF</Text>
+                <Text style={styles.downloadBtnText}>{t("downloadPdf")}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -217,7 +340,7 @@ const ViewCertificateScreen = ({ navigation, route }) => {
             activeOpacity={0.85}
           >
             <Ionicons name="share-social-outline" size={18} color="#1E293B" />
-            <Text style={styles.shareBtnText}>Share Certificate</Text>
+            <Text style={styles.shareBtnText}>{t("shareCertificate")}</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -235,6 +358,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
   },
   circleBtn: {
     width: 38,
@@ -256,10 +381,17 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     flex: 1,
+    marginHorizontal: 14,
+    marginTop: -32,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    marginTop: -22,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
     overflow: "hidden",
   },
   scrollContent: {
