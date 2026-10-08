@@ -24,15 +24,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    marginVertical: 18,
   },
-
   activePill: {
-    width: 28,
+    width: 24,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#1D4ED8",
+    backgroundColor: "#2563EB",
   },
-
   inactiveDot: {
     width: 8,
     height: 8,
