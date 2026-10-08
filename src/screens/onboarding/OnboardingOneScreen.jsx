@@ -5,21 +5,21 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
- 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import OnboardingPagination from "./OnboardingPagination"
+import OnboardingPagination from "./OnboardingPagination";
+
 const OnboardingOneScreen = ({ navigation }) => {
   const handleNext = () => {
     navigation.navigate("OnboardingTwo");
   };
 
   const handleSkip = () => {
-    navigation.navigate("WelcomeBack");
+    navigation.navigate("Language");
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {/* TOP SKIP BUTTON */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleSkip} activeOpacity={0.7}>
@@ -39,20 +39,19 @@ const OnboardingOneScreen = ({ navigation }) => {
         </Text>
       </View>
 
-      {/* CENTER ILLUSTRATION IMAGE FROM LOCAL ASSETS */}
+      {/* CENTER ILLUSTRATION IMAGE */}
       <View style={styles.illustrationContainer}>
         <Image
-           source={require("../../../assets/onboarding/screen-onboarding-1.png")}
+          source={require("../../../assets/onboarding/screen-onboarding-1.png")}
           style={styles.illustrationImage}
           resizeMode="contain"
         />
       </View>
 
-      {/* PAGINATION INDICATORS (Screen 1: Pill + 2 Dots) */}
-    <OnboardingPagination activeIndex={0} />
+      {/* BOTTOM WRAPPER WITH PAGINATION & BUTTON */}
+      <View style={styles.bottomWrapper}>
+        <OnboardingPagination activeIndex={0} />
 
-      {/* BOTTOM ACTION BUTTON */}
-      <View style={styles.bottomContainer}>
         <TouchableOpacity
           style={styles.button}
           onPress={handleNext}
@@ -69,104 +68,67 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    justifyContent: "space-between",
     paddingHorizontal: 24,
+    justifyContent: "space-between",
   },
-
-  /* SKIP BUTTON */
   topBar: {
     alignItems: "flex-end",
-    paddingTop: 12,
+    paddingTop: 8,
+    height: 36,
   },
-
   skipText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     color: "#2563EB",
   },
-
-  /* TEXT SECTION */
   textContainer: {
     alignItems: "center",
-    marginTop: 6,
+    marginTop: 4,
   },
-
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "800",
     color: "#0F172A",
     textAlign: "center",
   },
-
   brandCyber: {
-    color: "#1E40AF",
-    fontWeight: "900",
+    color: "#0F172A",
+    fontWeight: "800",
   },
-
   brandSave: {
     color: "#2563EB",
     fontWeight: "800",
   },
-
   description: {
-    marginTop: 10,
-    fontSize: 14,
+    marginTop: 8,
+    fontSize: 13.5,
     color: "#64748B",
     textAlign: "center",
-    lineHeight: 21,
-    paddingHorizontal: 15,
+    lineHeight: 20,
+    paddingHorizontal: 12,
   },
-
-  /* IMAGE SECTION */
   illustrationContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 10,
+    paddingVertical: 10,
   },
-
   illustrationImage: {
     width: "100%",
     height: "100%",
-    maxHeight: 320,
+    maxHeight: 300,
   },
-
-  /* EXACT PAGINATION (Active Pill + 2 Small Dots) */
-  paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    gap: 6,
+  bottomWrapper: {
+    paddingBottom: 20,
   },
-
-  activePill: {
-    width: 22,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#2563EB",
-  },
-
-  inactiveDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: "#E2E8F0",
-  },
-
-  /* BOTTOM BUTTON */
-  bottomContainer: {
-    marginBottom: 24,
-  },
-
   button: {
     height: 52,
     borderRadius: 16,
     backgroundColor: "#2563EB",
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 8,
   },
-
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
