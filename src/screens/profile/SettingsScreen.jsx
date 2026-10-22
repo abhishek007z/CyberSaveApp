@@ -308,18 +308,6 @@ const SettingsScreen = ({ navigation }) => {
 
             <View style={styles.divider} />
 
-            <View style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="repeat-outline" size={18} color="#2563EB" />
-                <Text style={styles.settingLabel}>Auto-pay</Text>
-              </View>
-              <Switch
-                value={settings?.autopay ?? false}
-                onValueChange={(val) => toggleSetting("autopay", val)}
-                trackColor={{ false: "#E2E8F0", true: "#2563EB" }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
           </View>
 
           {/* SECTION 2: SECURITY */}
