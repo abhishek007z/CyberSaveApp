@@ -36,6 +36,8 @@ const PaymentGatewayScreen = ({ navigation, route }) => {
   const category = route?.params?.category || "Services";
   const amount = Number(route?.params?.amount) || 55;
   const docs = route?.params?.docs || {};
+  const formValues = route?.params?.formValues || {};
+  const formFields = route?.params?.formFields || [];
 
   const numWalletBalance = parseFloat(availableBalance) || 0;
   const hasSufficientWalletBal = numWalletBalance >= amount;
@@ -82,6 +84,8 @@ const PaymentGatewayScreen = ({ navigation, route }) => {
           paymentMethod: "CyberSave Wallet",
           paymentId: `WALLET_TXN_${Date.now()}`,
           docs,
+          formData: formValues,
+          formFields,
         })
       ).unwrap();
 
@@ -113,6 +117,8 @@ const PaymentGatewayScreen = ({ navigation, route }) => {
           paymentMethod: methodStr || selectedMethod.toUpperCase(),
           paymentId: paymentIdStr || `PAY_${Date.now()}`,
           docs,
+          formData: formValues,
+          formFields,
         })
       ).unwrap();
 
