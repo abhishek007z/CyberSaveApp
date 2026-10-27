@@ -1,47 +1,35 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, StatusBar } from "react-native";
+import { View, Text, StyleSheet, StatusBar, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
 
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.replace("OnboardingOne");
-    }, 2000);
+    }, 2200);
 
     return () => clearTimeout(timer);
   }, [navigation]);
 
   return (
     <LinearGradient
-      colors={["#E2E8F0", "#3B82F6", "#1E3A8A"]}
+      colors={["#DCE7F3", "#3B82F6", "#1D4ED8", "#0F2B75"]}
       style={styles.container}
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1 }}
     >
       <StatusBar barStyle="dark-content" transparent backgroundColor="transparent" />
 
-      {/* CENTER LOGO SECTION */}
-      <View style={styles.logoSection}>
-        {/* LOGO ICON GRAPHIC */}
-        <View style={styles.iconContainer}>
-          <View style={styles.lockCircle}>
-            <Ionicons name="lock-closed" size={54} color="#1D4ED8" />
-          </View>
-        </View>
+      {/* TOP SPACER */}
+      <View style={{ height: 40 }} />
 
-        {/* LOGO TEXT */}
-        <View style={styles.brandRow}>
-          <Text style={styles.brandCyber}>Cyber</Text>
-          <Text style={styles.brandSave}>save</Text>
-        </View>
-
-        {/* LOGO TAGLINE LINE */}
-        <View style={styles.taglineContainer}>
-          <View style={styles.subLine} />
-          <Text style={styles.taglineText}>DIGITAL SERVICES • TRUSTED ALWAYS</Text>
-          <View style={styles.subLine} />
-        </View>
+      {/* CENTER LOGO SECTION (From assets/logo) */}
+      <View style={styles.logoContainer}>
+        <Image
+          source={require("../../../assets/logo/d7bf2488f4cd3dc8fcd3e655c646cd11e24e4e89.png")}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
 
       {/* FOOTER SECTION */}
@@ -70,130 +58,63 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 60,
+    paddingVertical: 50,
   },
-
-  /* LOGO GRAPHICS */
-  logoSection: {
+  logoContainer: {
     alignItems: "center",
-    marginTop: 140,
-  },
-
-  iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
     justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    width: "80%",
+    height: 220,
   },
-
-  lockCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#EFF6FF",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#3B82F6",
+  logoImage: {
+    width: 240,
+    height: 200,
   },
-
-  brandRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  brandCyber: {
-    fontSize: 38,
-    fontWeight: "900",
-    color: "#0F172A",
-    letterSpacing: -0.5,
-  },
-
-  brandSave: {
-    fontSize: 38,
-    fontWeight: "900",
-    color: "#3B82F6",
-    letterSpacing: -0.5,
-  },
-
-  taglineContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 6,
-  },
-
-  subLine: {
-    width: 20,
-    height: 1,
-    backgroundColor: "#64748B",
-  },
-
-  taglineText: {
-    fontSize: 9,
-    fontWeight: "700",
-    color: "#334155",
-    marginHorizontal: 8,
-    letterSpacing: 1.2,
-  },
-
-  /* FOOTER & BADGE */
   footerSection: {
     alignItems: "center",
     paddingHorizontal: 20,
+    marginBottom: 10,
   },
-
   footerTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "700",
     color: "#FFFFFF",
     textAlign: "center",
+    letterSpacing: 0.2,
   },
-
   footerSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#E2E8F0",
-    marginTop: 6,
+    marginTop: 4,
     textAlign: "center",
     fontWeight: "500",
   },
-
   digitalIndiaBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.16)",
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: 20,
-    marginTop: 25,
+    marginTop: 20,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",
   },
-
   flagStrip: {
     flexDirection: "row",
-    marginRight: 10,
-    gap: 4,
+    marginRight: 8,
+    gap: 3,
   },
-
   flagDot: {
-    width: 10,
+    width: 8,
     height: 4,
     borderRadius: 2,
   },
-
   badgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
     color: "#FFFFFF",
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
 });
 
