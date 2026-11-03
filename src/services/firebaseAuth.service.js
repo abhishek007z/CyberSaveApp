@@ -1,5 +1,7 @@
-const FIREBASE_API_KEY = "AIzaSyAgM1cmA5p46_GRmmEqEAUZ1y3CbUxoJ9o";
-const IDENTITY_TOOLKIT_URL = "https://identitytoolkit.googleapis.com/v1/accounts";
+
+const FIREBASE_API_KEY = "";
+
+const IDENTITY_TOOLKIT_URL = "";
 
 /**
  * Real Firebase Phone Authentication Service
