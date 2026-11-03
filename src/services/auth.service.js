@@ -19,6 +19,15 @@ const authService = {
     return response.data;
   },
 
+    verifyPhone: async (idToken) => {
+    const response = await apiClient.post(
+      "/auth/verify-phone",
+      { idToken }
+    );
+
+    return response.data;
+  },
+
   verifyOtp: async (email, otp) => {
     const response = await apiClient.post(
       "/auth/verify-otp",
